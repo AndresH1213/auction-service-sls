@@ -5,6 +5,11 @@ AuctionsTableIAM:
     - dynamodb:Scan
     - dynamodb:GetItem
     - dynamodb:UpdateItem
+    - dynamodb:Query
   Resource:
     - ${self:custom.AuctionsTable.arn}
+    - !Join [
+        '/',
+        ['${self:custom.AuctionsTable.arn}', 'index', 'statusEndDate'],
+      ] # remember that global index has their own arn
 #    - arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/AuctionsTable
