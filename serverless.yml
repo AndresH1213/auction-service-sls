@@ -1,62 +1,17 @@
 service: action-service
 frameworkVersion: '3'
 
-plugins:
-  - serverless-pseudo-parameters
-
 provider:
   name: aws
   runtime: nodejs12.x
   memorySize: 256
   stage: ${opt:stage, 'dev'}
   region: eu-west-1
-  environment:
-    AUCTIONS_TABLE_NAME: ${self:custom.AuctionsTable.name}
-  iamRoleStatements:
-    - ${file(iam/AuctionsTableIAM.yml):AuctionsTableIAM}
 
 resources:
-  Resources:
-    AuctionsTable: ${file(resources/AuctionsTable.yml):AuctionsTable}
-
-functions:
-  createAuction:
-    handler: src/handlers/createAuction.handler
-    events:
-      - http:
-          method: POST
-          path: /auction
-
-  getAuctions:
-    handler: src/handlers/getAuctions.handler
-    events:
-      - http:
-          method: GET
-          path: /auctions
-
-  getAuction:
-    handler: src/handlers/getAuction.handler
-    events:
-      - http:
-          method: GET
-          path: /auction/{id}
-
-  placeBid:
-    handler: src/handlers/placeBid.handler
-    events:
-      - http:
-          method: PATCH
-          path: /auction/{id}/bid
-
-  processAuctions:
-    handler: src/handlers/processAuctions.handler
-    # events:
-    #   - schedule: rate(1 minute)
+  - ${file(resources/CognitoUserPool.yml)}
+  - ${file(resources/ApiMain.yml)}
+  - ${file(resources/ApiAuthorizer.yml)}
 
 custom:
-  AuctionsTable:
-    # when we deploy our stack is gonna be replace with the name of our table
-    name: !Ref AuctionsTable
-    arn: !GetAtt AuctionsTable.Arn
-  bundle:
-    linting: false
+  AppName: AuctionApp
